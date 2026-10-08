@@ -9,6 +9,11 @@ const MAX_FRAME_TIME = 50;
 // a shot that is still going after this long is ended anyway, in ms
 const MAX_SHOT_TIME = 15000;
 
+// how pucks slide and bounce, the computer plans its shots with these too
+export const PUCK_DAMPING = 1.6;
+export const PUCK_DENSITY = 0.8;
+export const PUCK_RESTITUTION = 0.98;
+
 /**
  * Physics: maps game data to bodies, steps the world, and turns collisions and rest into game events.
  */
@@ -121,15 +126,15 @@ export class Physics extends Middleware<ShuffleContext> {
       bullet: true,
       position: { x: data.x, y: data.y },
       angle: data.angle,
-      linearDamping: 1.6,
+      linearDamping: PUCK_DAMPING,
       angularDamping: 1.6,
       userData: data,
     });
     body.createFixture({
       shape: new Circle(data.radius),
       friction: 0.1,
-      restitution: 0.98,
-      density: 0.8,
+      restitution: PUCK_RESTITUTION,
+      density: PUCK_DENSITY,
     });
     return body;
   }

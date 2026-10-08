@@ -12,11 +12,10 @@ Multiplayer shuffle, implemented using:
 
 Two teams take turns. Drag one of your pucks and release to shoot it, like a slingshot, and knock the other team's pucks off the board.
 
-- The team on turn is marked with rings, and the turn passes once everything has stopped.
-- A shot that knocks out an opponent's puck, and none of your own, earns another shot.
+- The team on turn is marked with rings, and the turn passes once everything has stopped, whatever the shot knocked out.
 - A team with no pucks left loses. If both teams run out on the same shot, the shooter loses.
 
-Play Offline is for two players taking turns on one device. Create Room starts an online game and shows a room id for the other player to enter with Join Room. Anyone joining after the first two watches.
+The game starts against the computer, which plays blue; Play Computer starts a new one. Two Players is for two players taking turns on one device. Create Room starts an online game and shows a room id for the other player to enter with Join Room. Anyone joining after the first two watches.
 
 ### How to run the code
 

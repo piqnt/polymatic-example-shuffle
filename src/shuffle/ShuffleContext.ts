@@ -60,6 +60,10 @@ export interface ShuffleContext {
   winner?: Color | null;
 
   users?: User[];
+
+  // offline only: the team the computer plays, if any, and the shot it is lining up, see Computer
+  computer?: Color;
+  computerAim?: { key: string; impulse: Point } | null;
 }
 
 /** Pucks left on the board, per team. */

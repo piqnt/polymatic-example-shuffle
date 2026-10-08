@@ -28,12 +28,13 @@ export interface ClientContext extends ShuffleContext {
 }
 
 /**
- * Whether this client may shoot a puck of the given team now. Offline both teams play on this device, online only
- * the team the server gave this user.
+ * Whether this client may shoot a puck of the given team now. Offline both teams play on this device, but for the
+ * computer's, online only the team the server gave this user.
  */
 export const canShoot = (context: ClientContext, color: Color) => {
   if (!context.started || context.winner || context.moving) return false;
   if (context.turn !== color) return false;
+  if (context.computer === color) return false;
   if (context.room && context.me?.color !== color) return false;
   return true;
 };

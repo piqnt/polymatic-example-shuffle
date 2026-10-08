@@ -181,18 +181,28 @@ export class Terminal extends Middleware<ClientContext> {
     this.aim.clear();
     const puck = this.aimed();
     if (puck) {
-      const drag = this.drag(puck, this.pointer);
-      this.aim
-        .moveTo(puck.x, puck.y)
-        .lineTo(puck.x - drag.x, puck.y - drag.y)
-        .stroke({ width: LINE_WIDTH, color: 0xffffff, alpha: 0.5 })
-        .moveTo(puck.x, puck.y)
-        .lineTo(puck.x + drag.x * 0.5, puck.y + drag.y * 0.5)
-        .stroke({ width: LINE_WIDTH * 1.5, color: COLORS[puck.color], alpha: 0.9 });
+      this.drawAim(puck, this.drag(puck, this.pointer));
     } else {
       this.aimKey = null;
+      // the computer's shot, drawn as if it were dragged
+      const shot = this.context.computerAim;
+      const aimed = shot && pucks.find((p) => p.key === shot.key);
+      if (aimed) {
+        this.drawAim(aimed, { x: shot.impulse.x / SHOOT_STRENGTH, y: shot.impulse.y / SHOOT_STRENGTH });
+      }
     }
   };
+
+  /** The drag back from the puck, and the way it will go. */
+  drawAim(puck: Puck, drag: Point) {
+    this.aim
+      .moveTo(puck.x, puck.y)
+      .lineTo(puck.x - drag.x, puck.y - drag.y)
+      .stroke({ width: LINE_WIDTH, color: 0xffffff, alpha: 0.5 })
+      .moveTo(puck.x, puck.y)
+      .lineTo(puck.x + drag.x * 0.5, puck.y + drag.y * 0.5)
+      .stroke({ width: LINE_WIDTH * 1.5, color: COLORS[puck.color], alpha: 0.9 });
+  }
 
   wallDriver = Driver.create<Wall, Sprite>({
     filter: (data) => data.type === "wall",

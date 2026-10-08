@@ -1,6 +1,6 @@
 import { Memo, Middleware } from "polymatic";
 
-import { type Color, countPucks } from "../shuffle/ShuffleContext";
+import { type Color, countPucks, other } from "../shuffle/ShuffleContext";
 import { type ClientContext } from "./ClientContext";
 
 const NAMES: Record<Color, string> = { red: "Red", blue: "Blue" };
@@ -22,14 +22,26 @@ export class Status extends Middleware<ClientContext> {
   };
 
   handleFrameRender = () => {
-    const { pucks, started, turn, moving, winner, users, room, me, hud } = this.context;
+    const { pucks, started, turn, moving, winner, users, room, me, computer, hud } = this.context;
     const score = pucks && countPucks(pucks);
-    if (!this.memo.update(score?.red, score?.blue, started, turn, moving, winner, users?.length, me?.color)) return;
+    if (!this.memo.update(score?.red, score?.blue, started, turn, moving, winner, users?.length, me?.color, computer))
+      return;
 
     hud.scoreText.value = score ? `Red ${score.red} · Blue ${score.blue}` : "";
 
     const status = [];
-    if (!room) {
+    if (computer) {
+      status.push(`You play ${other(computer)}`);
+      if (winner) {
+        status.push(winner === computer ? "The computer wins. Tap to play again" : "You win! Tap to play again");
+      } else if (moving) {
+        status.push("Shot in progress");
+      } else if (turn === computer) {
+        status.push("Computer's turn");
+      } else if (turn) {
+        status.push("Your turn: drag a puck and release to shoot");
+      }
+    } else if (!room) {
       if (winner) {
         status.push(`${NAMES[winner]} wins! Tap to play again`);
       } else if (moving) {

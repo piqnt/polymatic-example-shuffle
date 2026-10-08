@@ -18,14 +18,11 @@ const TEAM_SIZE = 8;
 /**
  * Game logic: turns and knock-outs. Physics, rendering and network agnostic.
  *
- * Teams take turns shooting one of their own pucks, and a puck that touches the board edge is out. A shot that
- * knocks out an opponent's puck, and none of the shooter's, earns another shot. A team with no pucks left loses, and
+ * Teams take turns shooting one of their own pucks, and a puck that touches the board edge is out. The turn passes
+ * after every shot, whatever it knocked out. A team with no pucks left loses, and
  * if both run out on the same shot the shooter loses.
  */
 export class Board extends Middleware<ShuffleContext> {
-  // pucks per team when the current shot was taken
-  before: Record<Color, number> | null = null;
-
   constructor() {
     super();
     this.on("activate", this.handleActivate);
@@ -52,7 +49,6 @@ export class Board extends Middleware<ShuffleContext> {
     this.context.turn = Math.random() < 0.5 ? "red" : "blue";
     this.context.moving = false;
     this.context.winner = null;
-    this.before = null;
     this.emit("update");
   }
 
@@ -79,7 +75,6 @@ export class Board extends Middleware<ShuffleContext> {
     const puck = pucks.find((p) => p.key === key);
     if (!puck || puck.color !== turn) return;
     puck.impulse = impulse;
-    this.before = countPucks(pucks);
     this.context.moving = true;
     this.emit("update");
   };
@@ -96,20 +91,14 @@ export class Board extends Middleware<ShuffleContext> {
     if (!this.context.moving) return;
     this.context.moving = false;
 
-    const shooter = this.context.turn;
-    const opponent = other(shooter);
+    const opponent = other(this.context.turn);
     const after = countPucks(this.context.pucks);
 
     if (!after.red || !after.blue) {
       this.context.winner = after.red ? "red" : after.blue ? "blue" : opponent;
     } else {
-      const hit = after[opponent] < (this.before?.[opponent] ?? 0);
-      const lost = after[shooter] < (this.before?.[shooter] ?? 0);
-      if (!hit || lost) {
-        this.context.turn = opponent;
-      }
+      this.context.turn = opponent;
     }
-    this.before = null;
     this.emit("update");
   };
 
